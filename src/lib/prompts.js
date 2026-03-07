@@ -10,7 +10,7 @@ export function buildUserPrompt({ platform, topic, brief }) {
   const context = [topicLine, briefLine].filter(Boolean).join('\n')
 
   const platformGuides = {
-    blog: `Write a blog post (800–1 200 words) for the Bannerman Leasing website.
+    blog: `Write a blog post (800–1,200 words) for the Bannerman Leasing website.
 Structure: engaging intro, 3–5 H2 sections, conclusion with CTA.
 Include SEO-friendly headings. Output in Markdown.
 ${context}`,

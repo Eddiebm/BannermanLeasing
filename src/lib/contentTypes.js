@@ -5,7 +5,7 @@ export const PLATFORMS = {
     color: 'indigo',
     bgClass: 'bg-indigo-100 text-indigo-800',
     dotClass: 'bg-indigo-500',
-    description: 'Long-form article, SEO-optimised, 800–1 200 words',
+    description: 'Long-form article, SEO-optimised, 800–1,200 words',
   },
   instagram: {
     id: 'instagram',

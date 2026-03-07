@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, useCallback } from 'react'
+import { createContext, useEffect, useReducer, useCallback } from 'react'
 import { fetchItems, upsertItem, deleteItem, isSupabaseEnabled } from '../lib/supabase.js'
 
 const STORAGE_KEY = 'bl_content_items'
@@ -80,8 +80,6 @@ export function ContentProvider({ children }) {
   )
 }
 
-export function useContentContext() {
-  const ctx = useContext(ContentContext)
-  if (!ctx) throw new Error('useContentContext must be used within ContentProvider')
-  return ctx
-}
+// Exported separately to avoid fast-refresh warnings.
+// Import from here OR from '../hooks/useContentContext.js'
+export { ContentContext }

@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { X, CheckCircle, Download, Trash2, Loader2 } from 'lucide-react'
+import { X, CheckCircle, Trash2, Loader2 } from 'lucide-react'
 import { PLATFORMS, MODELS } from '../lib/contentTypes.js'
 import { useGenerate } from '../hooks/useGenerate.js'
 import StatusBadge from './StatusBadge.jsx'
 import PlatformBadge from './PlatformBadge.jsx'
-import ModelBadge from './ModelBadge.jsx'
 
 export default function ContentDetail({ item, onClose, onSave, onDelete }) {
   const [local, setLocal] = useState(item)

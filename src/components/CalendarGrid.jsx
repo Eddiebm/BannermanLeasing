@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
-  addMonths, subMonths, eachDayOfInterval, isSameMonth, isToday, parseISO,
+  addMonths, subMonths, eachDayOfInterval, isSameMonth, isToday,
 } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { PLATFORMS } from '../lib/contentTypes.js'

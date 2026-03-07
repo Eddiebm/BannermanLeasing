@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useContentContext } from '../context/ContentContext.jsx'
+import { useContentContext } from './useContentContext.js'
 
 export function useContent() {
   const { items, addOrUpdateItem, removeItem, setAllItems } = useContentContext()
