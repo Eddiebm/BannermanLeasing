@@ -1,0 +1,7 @@
+name = "bannerman-leasing-content"
+compatibility_date = "2024-01-15"
+pages_build_output_dir = "dist"
+
+[vars]
+RATE_LIMIT_REQUESTS = "20"
+RATE_LIMIT_WINDOW_SECONDS = "60"

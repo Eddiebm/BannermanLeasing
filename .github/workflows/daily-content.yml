@@ -1,0 +1,38 @@
+name: Daily Content Generation
+
+on:
+  schedule:
+    # Runs every day at 06:00 UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (do not actually generate)'
+        required: false
+        default: 'false'
+
+jobs:
+  generate:
+    name: Generate Today's Content
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger cron endpoint
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "Dry run – skipping API call."
+            exit 0
+          fi
+
+          HTTP_STATUS=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+            -X POST "${{ secrets.CONTENT_APP_URL }}/api/cron" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+
+          echo "HTTP status: $HTTP_STATUS"
+          cat /tmp/response.json
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Cron endpoint returned non-200 status: $HTTP_STATUS"
+            exit 1
+          fi
