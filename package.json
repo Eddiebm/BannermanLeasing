@@ -1,0 +1,24 @@
+{
+  "name": "bannerman-content-machine",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && cp -R functions dist/ && cp bannerman-cm-config.js dist/",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
+  }
+}

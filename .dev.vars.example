@@ -1,0 +1,34 @@
+# Local development secrets for Cloudflare Pages Functions
+# Copy this file to .dev.vars and replace values.
+
+# At least one LLM key is required for generation (set the ones you use).
+ANTHROPIC_API_KEY=sk-ant-REPLACE_ME
+OPENAI_API_KEY=sk-REPLACE_ME
+GOOGLE_API_KEY=REPLACE_ME
+
+# Optional: require a client token header from the browser.
+# If you set this, add the same token in app Settings.
+BANNERMAN_CLIENT_TOKEN=
+
+# Supabase (required for autonomous mode)
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Optional: protect automation endpoints with a separate key
+CM_AUTOMATION_KEY=
+
+# Optional: number of due tasks to generate per daily run
+CM_DAILY_BATCH_SIZE=8
+
+# Optional: LLM for automation run-daily (default: anthropic). Same as app: anthropic, openai, google
+# CM_LLM_PROVIDER=anthropic
+# CM_LLM_MODEL=
+
+# Optional: rate limiting. In production, bind a KV namespace to RATE_LIMIT_KV (30 req/min per IP or token).
+# RATE_LIMIT_KV is a binding, not a secret—configure in Pages dashboard.
+
+# Optional: webhook URL for run-daily completion (POST with { event, processed, ready, failed, errors })
+# CM_WEBHOOK_URL=
+
+# Optional: restrict CORS to a single origin (e.g. https://your-app.pages.dev). Omit for *.
+# ALLOWED_ORIGIN=

@@ -1,0 +1,35 @@
+# Daily automation: generate due content (run-daily)
+# Schedule: 06:00 UTC every day
+# Repo secrets: CM_BASE_URL (required), CM_AUTOMATION_KEY (optional)
+
+name: CM Daily Run
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+env:
+  CM_BASE_URL: ${{ vars.CM_BASE_URL || secrets.CM_BASE_URL }}
+  CM_AUTOMATION_KEY: ${{ secrets.CM_AUTOMATION_KEY }}
+
+jobs:
+  run-daily:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call run-daily
+        run: |
+          URL="${{ env.CM_BASE_URL }}/api/automation/run-daily"
+          HEADERS=(-H "Content-Type: application/json")
+          if [ -n "${{ env.CM_AUTOMATION_KEY }}" ]; then
+            HEADERS+=(-H "x-cm-automation-key: ${{ env.CM_AUTOMATION_KEY }}")
+          fi
+          res=$(curl -s -w "\n%{http_code}" -X POST "${URL}" "${HEADERS[@]}")
+          code=$(echo "$res" | tail -n1)
+          body=$(echo "$res" | sed '$d')
+          echo "$body" | jq . 2>/dev/null || echo "$body"
+          if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+            echo "::error::run-daily returned HTTP $code"
+            exit 1
+          fi
+          echo "Processed: $(echo "$body" | jq -r '.processed // "?"') ready: $(echo "$body" | jq -r '.ready // "?"') failed: $(echo "$body" | jq -r '.failed // "?"')"

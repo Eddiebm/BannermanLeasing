@@ -1,0 +1,6 @@
+name = "bannerman-content-machine"
+compatibility_date = "2026-03-06"
+pages_build_output_dir = "dist"
+
+# After npm run build, dist/ contains the built app + a copy of functions/.
+# Deploy with: npm run build && wrangler pages deploy dist --project-name bannerman-content-machine

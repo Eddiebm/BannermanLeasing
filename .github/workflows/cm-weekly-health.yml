@@ -1,0 +1,49 @@
+# Weekly health check: status + alert if too many failures
+# Schedule: Monday 09:00 UTC
+# Repo secrets: CM_BASE_URL (required), CM_AUTOMATION_KEY (optional)
+# Optional: set CM_FAILED_THRESHOLD (default 25) to fail the job and surface in Actions
+
+name: CM Weekly Health
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+env:
+  CM_BASE_URL: ${{ vars.CM_BASE_URL || secrets.CM_BASE_URL }}
+  CM_AUTOMATION_KEY: ${{ secrets.CM_AUTOMATION_KEY }}
+  CM_FAILED_THRESHOLD: ${{ vars.CM_FAILED_THRESHOLD || '25' }}
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call status
+        id: status
+        run: |
+          URL="${{ env.CM_BASE_URL }}/api/automation/status"
+          HEADERS=(-H "Accept: application/json")
+          if [ -n "${{ env.CM_AUTOMATION_KEY }}" ]; then
+            HEADERS+=(-H "x-cm-automation-key: ${{ env.CM_AUTOMATION_KEY }}")
+          fi
+          res=$(curl -s -w "\n%{http_code}" "${URL}" "${HEADERS[@]}")
+          code=$(echo "$res" | tail -n1)
+          body=$(echo "$res" | sed '$d')
+          echo "$body" > status.json
+          echo "$body" | jq . 2>/dev/null || echo "$body"
+          if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+            echo "::error::status returned HTTP $code"
+            exit 1
+          fi
+
+      - name: Check failure count
+        run: |
+          failed=$(jq -r '.queue.failed // 0' status.json)
+          threshold="${{ env.CM_FAILED_THRESHOLD }}"
+          echo "Failed tasks: $failed (threshold: $threshold)"
+          if [ -n "$failed" ] && [ -n "$threshold" ] && [ "$failed" -ge "$threshold" ]; then
+            echo "::error::Failed task count ($failed) is at or above threshold ($threshold). Review /api/automation/status and fix failures."
+            exit 1
+          fi
+          echo "Health check passed."
