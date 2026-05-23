@@ -5,7 +5,8 @@
  * Returns: { content: [{ text: string }] }
  *
  * Env: ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY (or GEMINI_API_KEY)
- * Optional: BANNERMAN_CLIENT_TOKEN, RATE_LIMIT_KV (KV namespace binding for rate limiting)
+ * Required: BANNERMAN_CLIENT_TOKEN
+ * Optional: RATE_LIMIT_KV (KV namespace binding for rate limiting)
  *
  * Limits: prompt (system + messages) ≤ 150k chars; max_tokens ≤ 8192. Optional KV rate limit: 30/min per key.
  */
@@ -24,7 +25,10 @@ export async function onRequestPost(context) {
 
   const requiredClientToken = env.BANNERMAN_CLIENT_TOKEN;
   if (!requiredClientToken) {
-    return withCors(json({ error: { message: "Server misconfiguration: BANNERMAN_CLIENT_TOKEN is not set." } } captureStackTrace500), env);
+    return withCors(
+      json({ error: { message: "Server misconfiguration: BANNERMAN_CLIENT_TOKEN is not set." } }, 500),
+      env,
+    );
   }
   const providedClientToken = request.headers.get("x-bannerman-token") || "";
   if (providedClientToken !== requiredClientToken) {

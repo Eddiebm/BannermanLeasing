@@ -91,8 +91,22 @@ export default function App() {
         await new Promise(r => setTimeout(r, 2000));
         return generateTask(task, attempt + 1);
       }
-      // Ensure specific error messages don't expose sensitive info if they contain it
-      const errorMessage = e instanceof Error ? e.message : String(e);
+      // Sanitize potential error messages to prevent leakage of sensitive information
+      let errorMessage = "Unknown error";
+      if (e instanceof Error) {
+        // Broadly categorize or remove specific sensitive terms if suspected
+        if (e.message.includes("SUPABASE_SERVICE_ROLE_KEY")) {
+            errorMessage = "A server-side configuration error occurred.";
+        } else {
+            errorMessage = e.message.substring(0, 200); // Truncate long messages
+        }
+      } else if (typeof e === 'string') {
+        if (e.includes("SUPABASE_SERVICE_ROLE_KEY")) {
+            errorMessage = "A server-side configuration error occurred.";
+        } else {
+            errorMessage = e.substring(0, 200); // Truncate long messages
+        }
+      }
       updateTask(task.id, { status:"failed", error: errorMessage });
       addLog(`✗ ${task.platform} Week ${task.week}: ${errorMessage}`, "error");
     }
@@ -349,7 +363,7 @@ export default function App() {
                       {statusDot(t.status)}
                       <span style={S.taskName}>{CONTENT_TYPES[t.contentType]?.label}</span>
                       <span style={{...S.chip,background:PLATFORM_CONFIG[t.platform]?.color+"22",color:PLATFORM_CONFIG[t.platform]?.color,fontSize:10}}>{t.platform}</span>
-                      <span style={{...S.chip,background:"#252D3D",color:"#7A8899",fontSize:10}}>W{t.week}</span>
+                      <span style={{...S.chip,background:"#252D3D",color:"#7A8899",fontSize:10}>W{t.week}</span>
                     </div>
                     <div style={S.taskSub}>{t.date} · {WEEKLY_TOPICS[Math.min(t.week-1,51)].blogA.slice(0,50)}…</div>
                   </div>
@@ -501,17 +515,4 @@ export default function App() {
                 {selectedTask.status==="pending" && (
                   <div style={{...S.card,textAlign:"center",padding:48}}>
                     <div style={{fontSize:32,marginBottom:12}}>⏳</div>
-                    <div style={{color:"#7A8899",fontFamily:"monospace"}}>Not yet generated — click Generate above</div>
-                  </div>
-                )}
-
-                {(selectedTask.status==="ready"||selectedTask.status==="approved"||selectedTask.status==="posted") && selectedTask.content && (
-                  <ContentDisplay task={selectedTask} styles={S} />
-                )}
-
-                {selectedTask.status==="failed" && (
-                  <div style={{...S.card,background:"#2D1A1A",border:"1px solid #EF4444"}}>
-                    <div style={{color:"#EF4444",fontFamily:"monospace",fontSize:13}}>⚠ Generation failed: {selectedTask.error}</div>
-                  </div>
-                )}
-              </div>
+                    <div style={{color:"#7A8899",fontFamily:"monospace"}}>Not yet generated —
