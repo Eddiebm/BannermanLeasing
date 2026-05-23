@@ -2,7 +2,10 @@
  * CORS helper for API routes. Set ALLOWED_ORIGIN in env to restrict (e.g. https://app.example.com); default *.
  */
 export function corsHeaders(env = {}) {
-  const origin = env.ALLOWED_ORIGIN || "*";
+  const origin = env.ALLOWED_ORIGIN;
+  if (!origin) {
+    throw new Error("ALLOWED_ORIGIN env var is not set");
+  }
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",

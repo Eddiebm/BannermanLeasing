@@ -37,7 +37,9 @@ export function json(payload, status = 200) {
 
 export function requireAutomationKey(request, env) {
   const required = env.CM_AUTOMATION_KEY;
-  if (!required) return null;
+  if (!required) {
+    return json({ error: { message: "Server misconfiguration: CM_AUTOMATION_KEY is not set." } }, 500);
+  }
   const provided = request.headers.get("x-cm-automation-key") || "";
   if (provided !== required) {
     return json({ error: { message: "Unauthorized automation key." } }, 401);
