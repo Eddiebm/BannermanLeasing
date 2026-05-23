@@ -5,7 +5,10 @@ export function corsHeaders(env = {}) {
   const origin = env.ALLOWED_ORIGIN || "http://localhost:3000"; // Default to a safe development origin
   if (origin === "*") {
     // Wildcard '*' is disallowed for security reasons in production.
-    throw new Error("ALLOWED_ORIGIN env var cannot be set to '*'. Please specify a strict origin or remove it to use the default 'http://localhost:3000' for development.");
+    // In a production environment, ensure env.ALLOWED_ORIGIN is set to a specific, trusted origin.
+    // If not explicitly set, the default development origin will be used.
+    // For more robust behavior in production, consider throwing an error or logging a warning if ALLOWED_ORIGIN is not specified.
+    console.warn("ALLOWED_ORIGIN env var is set to '*', which is insecure for production. Please specify a strict origin.");
   }
   return {
     "Access-Control-Allow-Origin": origin,

@@ -95,13 +95,13 @@ export default function App() {
       let errorMessage = "Unknown error";
       if (e instanceof Error) {
         // Broadly categorize or remove specific sensitive terms if suspected
-        if (e.message.includes("SUPABASE_SERVICE_ROLE_KEY")) {
+        if (e.message.includes("Supabase service role key")) {
             errorMessage = "A server-side configuration error occurred.";
         } else {
             errorMessage = e.message.substring(0, 200); // Truncate long messages
         }
       } else if (typeof e === 'string') {
-        if (e.includes("SUPABASE_SERVICE_ROLE_KEY")) {
+        if (e.includes("Supabase service role key")) {
             errorMessage = "A server-side configuration error occurred.";
         } else {
             errorMessage = e.substring(0, 200); // Truncate long messages

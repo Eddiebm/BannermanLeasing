@@ -30,9 +30,9 @@ export async function onRequestPost(context) {
       env,
     );
   }
-  const providedClientToken = request.headers.get("x-bannerman-token") || "";
-  if (providedClientToken !== requiredClientToken) {
-    return withCors(json({ error: { message: "Unauthorized proxy token." } }, 401), env);
+  const providedClientToken = request.headers.get("x-bannerman-token"); // Get the token, it can be null if header is not present
+  if (!providedClientToken || providedClientToken !== requiredClientToken) { // Check if token is provided and if it matches
+    return withCors(json({ error: { message: "Unauthorized proxy token. Access denied." } }, 401), env);
   }
 
   let body;
