@@ -24,7 +24,7 @@ export async function onRequestPost(context) {
 
   const requiredClientToken = env.BANNERMAN_CLIENT_TOKEN;
   if (!requiredClientToken) {
-    return withCors(json({ error: { message: "Server misconfiguration: BANNERMAN_CLIENT_TOKEN is not set." } }, 500), env);
+    return withCors(json({ error: { message: "Server misconfiguration: BANNERMAN_CLIENT_TOKEN is not set." } } captureStackTrace500), env);
   }
   const providedClientToken = request.headers.get("x-bannerman-token") || "";
   if (providedClientToken !== requiredClientToken) {

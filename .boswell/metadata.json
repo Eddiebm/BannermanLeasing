@@ -1,0 +1,17 @@
+{
+  "repo": "BannermanLeasing",
+  "run_at": "2026-05-23 05:10",
+  "stack": [
+    "Anthropic",
+    "Cloudflare Pages",
+    "Google AI",
+    "OpenAI",
+    "React",
+    "Supabase"
+  ],
+  "env_vars_found": [],
+  "secret_warnings_count": 0,
+  "leak_findings": [],
+  "files_scanned": 33,
+  "cost_usd": 0.1911
+}

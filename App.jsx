@@ -91,8 +91,10 @@ export default function App() {
         await new Promise(r => setTimeout(r, 2000));
         return generateTask(task, attempt + 1);
       }
-      updateTask(task.id, { status:"failed", error: e.message });
-      addLog(`✗ ${task.platform} Week ${task.week}: ${e.message}`, "error");
+      // Ensure specific error messages don't expose sensitive info if they contain it
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      updateTask(task.id, { status:"failed", error: errorMessage });
+      addLog(`✗ ${task.platform} Week ${task.week}: ${errorMessage}`, "error");
     }
     setGeneratingId(null);
   };
@@ -513,108 +515,3 @@ export default function App() {
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        )}
-
-        {/* ══ SETTINGS ═════════════════════════════════════════════════════ */}
-        {view==="settings" && (
-          <div style={S.page}>
-            <div style={S.pageHeader}>
-              <h1 style={S.pageTitle}>Settings</h1>
-            </div>
-
-            <div style={S.card}>
-              <h3 style={S.cardTitle}>LLM Provider</h3>
-              <p style={{color:"#7A8899",fontSize:13,marginBottom:16,lineHeight:1.6}}>
-                Choose which model to use for content generation. Server must have the corresponding API key set (Anthropic, OpenAI, or Google).
-              </p>
-              <div style={{display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
-                <div>
-                  <label style={{fontSize:11,color:"#7A8899",fontFamily:"monospace",display:"block",marginBottom:4}}>Provider</label>
-                  <select
-                    style={S.select}
-                    value={llmProvider}
-                    onChange={e=>{const v=e.target.value; sessionStorage.setItem("bann_llm_provider", v); setLlmProvider(v); setLlmModel(""); addLog(`LLM: ${LLM_PROVIDERS[v]?.label || v}`, "success");}}
-                  >
-                    {Object.values(LLM_PROVIDERS).map(p=>(
-                      <option key={p.id} value={p.id}>{p.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label style={{fontSize:11,color:"#7A8899",fontFamily:"monospace",display:"block",marginBottom:4}}>Model (optional)</label>
-                  <select
-                    style={S.select}
-                    value={llmModel || (LLM_PROVIDERS[llmProvider]?.defaultModel ?? "")}
-                    onChange={e=>{const v=e.target.value; const def = LLM_PROVIDERS[llmProvider]?.defaultModel; sessionStorage.setItem("bann_llm_model", v === def ? "" : v); setLlmModel(v === def ? "" : v);}}
-                  >
-                    {(LLM_PROVIDERS[llmProvider]?.models || []).map(m=>(
-                      <option key={m} value={m}>{m === (LLM_PROVIDERS[llmProvider]?.defaultModel) ? `${m} (default)` : m}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div style={{marginTop:10,fontSize:12,color:"#7A8899",fontFamily:"monospace"}}>
-                Using: {LLM_PROVIDERS[llmProvider]?.label || llmProvider} · {llmModel || LLM_PROVIDERS[llmProvider]?.defaultModel || "default"}
-              </div>
-            </div>
-
-            <div style={S.card}>
-              <h3 style={S.cardTitle}>Optional Client Token</h3>
-              <p style={{color:"#7A8899",fontSize:13,marginBottom:16,lineHeight:1.6,fontFamily:"monospace"}}>
-                Used only if your proxy endpoint requires client auth.<br/>
-                Token is stored in session memory only — never persisted to disk.
-              </p>
-              <div style={{display:"flex",gap:10}}>
-                <input
-                  type="password"
-                  placeholder="optional client token"
-                  value={keyInput}
-                  onChange={e=>setKeyInput(e.target.value)}
-                  style={{...S.input,flex:1}}
-                />
-                <button style={S.btn} onClick={saveKey}>Save Key</button>
-              </div>
-              {apiKey && <div style={{marginTop:10,color:"#22C55E",fontFamily:"monospace",fontSize:12}}>✓ API key active (session only)</div>}
-            </div>
-
-            <div style={S.card}>
-              <h3 style={S.cardTitle}>Platform Setup Status</h3>
-              <p style={{color:"#7A8899",fontSize:13,marginBottom:16,lineHeight:1.6}}>
-                This machine generates content for all platforms. Auto-posting requires platform API keys (future feature). 
-                For now: generate → review → copy → post manually.
-              </p>
-              {Object.entries(PLATFORM_CONFIG).map(([key,cfg])=>(
-                <div key={key} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 0",borderBottom:"1px solid #252D3D"}}>
-                  <span style={{fontSize:20}}>{cfg.icon}</span>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:700,color:"#F0F4F8",fontSize:13}}>{cfg.label}</div>
-                    <div style={{fontSize:11,color:"#4A5568",fontFamily:"monospace",marginTop:2}}>{cfg.note}</div>
-                  </div>
-                  <div style={{...S.chip,...(cfg.canAutoPost?{background:"#22C55E22",color:"#22C55E"}:{background:"#E07B2A22",color:"#E07B2A"})}}>
-                    {cfg.canAutoPost ? "API Available" : "Manual Post"}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={S.card}>
-              <h3 style={S.cardTitle}>Queue Management</h3>
-              <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
-                <button style={{...S.btnSm,...S.btnRed}} onClick={()=>{if(confirm("Reset entire queue? This cannot be undone.")){const q=buildQueue();setQueue(q);recalcStats(q);saveState({queue:q});addLog("Queue reset",  "success")}}} aria-label="Reset entire queue">⚠ Reset Queue</button>
-                <button style={S.btnSm} onClick={()=>{const q=buildQueue();setQueue(q);recalcStats(q);saveState({queue:q});addLog("Queue rebuilt","success")}} aria-label="Rebuild queue from template">↺ Rebuild</button>
-                <button style={S.btnSm} onClick={()=>exportQueue("queue")} aria-label="Export full queue as JSON">Export queue (JSON)</button>
-                <button style={S.btnSm} onClick={()=>exportQueue("ready")} aria-label="Export ready and posted content as JSON">Export ready (JSON)</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-      </main>
-
-      {/* ── CONTENT DETAIL PANEL ──────────────────────────────────────────── */}
-      <style>{globalStyles}</style>
-    </div>
-  );
-}

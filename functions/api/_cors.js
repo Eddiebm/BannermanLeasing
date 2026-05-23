@@ -1,10 +1,12 @@
 /**
- * CORS helper for API routes. Set ALLOWED_ORIGIN in env to restrict (e.g. https://app.example.com); default *.
+ * CORS helper for API routes. Set ALLOWED_ORIGIN in env to restrict (e.g. https://app.example.com).
  */
 export function corsHeaders(env = {}) {
   const origin = env.ALLOWED_ORIGIN;
-  if (!origin) {
-    throw new Error("ALLOWED_ORIGIN env var is not set");
+  if (!origin || origin === "*") {
+    // By default, only allow same-origin requests or specify a strict origin.
+    // Wildcard '*' is disallowed for security reasons.
+    throw new Error("ALLOWED_ORIGIN env var is not securely set. It cannot be empty or '*'. Please specify a strict origin.");
   }
   return {
     "Access-Control-Allow-Origin": origin,
